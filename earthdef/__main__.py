@@ -3,7 +3,7 @@ import earthdef as ed
 from earthdef.resrc import find_resource
 import earthdef.entities as ents
 import earthdef.world as mir
-from earthdef.bullet import Bullet
+
 
 #global resources
 BACKDROP = pygame.image.load(find_resource('image',
@@ -12,6 +12,7 @@ FONT = None # fonts must be init'd after pygame.init
 
 #game globals
 LEVEL = 1
+SCORE = 0
 
 def setup_world():
     world = mir.World()
@@ -20,16 +21,15 @@ def setup_world():
 
     return world
 
-def draw(world, bullets):
+def draw(world):
     global BACKDROP
     global FONT
     global LEVEL
+    global SCORE
 
     primary = pygame.display.get_surface()
     primary.blit(BACKDROP,(0,0))
 
-    for bul in bullets:
-        bul.draw(primary)
     for ent in world.entities:
         ent.draw(primary)
 
@@ -38,10 +38,16 @@ def draw(world, bullets):
                 (0,255,0))
     primary.blit(level_text, (0,0))
 
+    score_text_str = "SCORE: %d" % (SCORE)
+    score_text = FONT.render(score_text_str, False,
+                (0,255,0))
+    primary.blit(score_text, (ed.DISPLAY_MODE[0]-len(score_text_str)*16,0))
+
     return pygame.display.flip()
 
 def main():
     global LEVEL
+    global SCORE
     global FONT
 
     pygame.init()
@@ -61,14 +67,12 @@ def main():
 
     running = True
     oldlevel = 0
-    bullets = []
 
     while running:
         # limit 30fps
         clock.tick(30)
-        draw(world, bullets)
+        draw(world)
 
-        Bullet.update_bullets(bullets)
         world.update_entities()
         oldlevel = world.update_world({ 'level': LEVEL,
                                         'oldlevel': oldlevel,
@@ -79,16 +83,20 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
                     if pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                        world.get_player().move(10,0)
+                        world.get_player().move(15,0)
                     else:
                         world.get_player().move(5,0)
                 elif event.key == pygame.K_LEFT:
                     if pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                        world.get_player().move(-10,0)
+                        world.get_player().move(-15,0)
                     else:
                         world.get_player().move(-5,0)
                 elif event.key == pygame.K_SPACE:
-                    bullets.append(world.get_player().shoot())
+                    world.add_entity(world.get_player().shoot())
+            # handle scoring and leveling
+            if event.type == ed.SCORE_CHANGED:
+                LEVEL = oldlevel+1
+                SCORE += event.scoremod
             # quit (like why?) ;)
             if event.type == pygame.QUIT:
                 running = False

@@ -9,6 +9,8 @@ class Entity(object):
         return inst
 
     def __init__(self, x, y, **kwargs):
+        self.kindof = kwargs.get('kind_of', 'Entity')
+
         w, h = kwargs.get('size', (0,0))
         if w == 0 or h == 0:
             w = kwargs.get('width', 0)
@@ -21,6 +23,11 @@ class Entity(object):
     @property
     def rect(self):
         return self.coords
+
+    #The type of entity we are, as a string
+    @property
+    def kind_of(self):
+        return self.kindof
 
     @property
     def X(self):
