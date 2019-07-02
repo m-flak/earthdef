@@ -5,9 +5,16 @@ ___you___ to stop them! You have only a lone satellite, equipped with lasers. Go
 
 ##### Controls
 **LEFT, RIGHT** - Horizontal movement, **SHIFT** to accelerate
+
 **SPACE** - Fire lasers
 
 ---
+
+## How to Run
+Simply _cd_ to the project root directory and run:
+```
+python -m earthdef
+```
 
 ## Requirements
 **pygame**

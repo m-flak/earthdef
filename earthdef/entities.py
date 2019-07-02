@@ -8,7 +8,7 @@ class Asteroid(earthdef.entity.Entity):
         earthdef.entity.Entity.__init__(self, x, y, kind_of='Asteroid')
         self.set_graphic('asteroid.png')
 
-        self._velocity = 5
+        self._velocity = 2
 
     @property
     def velocity(self):
@@ -43,6 +43,9 @@ class Bullet(earthdef.entity.Entity):
 
     def update(self):
         self.coords.y -= 5
+
+        if self.coords.y < 0:
+            self.purgeable = True
 
     def draw(self, draw_surface):
         pygame.draw.rect(draw_surface, (255, 0, 0), self.coords)

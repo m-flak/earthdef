@@ -19,6 +19,8 @@ class Entity(object):
         self.coords = pygame.Rect(x,y,w,h)
         self.graphic = None
 
+        self._purgeable = False
+
     # this makes us technically a sprite lol
     @property
     def rect(self):
@@ -28,6 +30,14 @@ class Entity(object):
     @property
     def kind_of(self):
         return self.kindof
+
+    @property
+    def purgeable(self):
+        return self._purgeable
+
+    @purgeable.setter
+    def purgeable(self, value):
+        self._purgeable = value
 
     @property
     def X(self):

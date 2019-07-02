@@ -30,6 +30,11 @@ class World(object):
         oldlevel = params['oldlevel']
         num_asteroids = level
 
+        #purge things
+        for e in self.entities:
+            if e.purgeable is True:
+                self.entities.remove(e)
+
         if oldlevel < level:
             self.add_entity(
                 earthdef.entities.Asteroid.spawn_asteroids(level))
