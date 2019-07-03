@@ -39,11 +39,15 @@ class World(object):
             self.add_entity(
                 earthdef.entities.Asteroid.spawn_asteroids(level))
 
-        destroyed = self.get_collides(self.list_by_type('Asteroid'),
+        asteroids = self.list_by_type('Asteroid')
+        destroyed = self.get_collides(asteroids,
                                       self.list_by_type('Bullet'))
         if len(destroyed) > 0:
             i = 0
             for d in destroyed:
+                for a in asteroids:
+                    if a is d:
+                        a.purgeable = True
                 self.entities.remove(d)
                 i = i + 1
             pygame.event.post(pygame.event.Event(earthdef.SCORE_CHANGED,{

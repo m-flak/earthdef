@@ -1,5 +1,6 @@
 import pygame
 import earthdef as ed
+import earthdef.ui as eui
 from earthdef.resrc import find_resource
 import earthdef.entities as ents
 import earthdef.world as mir
@@ -21,27 +22,19 @@ def setup_world():
 
     return world
 
-def draw(world):
+def draw(world, ui):
     global BACKDROP
-    global FONT
-    global LEVEL
-    global SCORE
 
+    # clear the board
     primary = pygame.display.get_surface()
     primary.blit(BACKDROP,(0,0))
 
+    # draw all entities
     for ent in world.entities:
         ent.draw(primary)
 
-    level_text_str = "LEVEL: %d" % (LEVEL)
-    level_text = FONT.render(level_text_str, False,
-                (0,255,0))
-    primary.blit(level_text, (0,0))
-
-    score_text_str = "SCORE: %d" % (SCORE)
-    score_text = FONT.render(score_text_str, False,
-                (0,255,0))
-    primary.blit(score_text, (ed.DISPLAY_MODE[0]-len(score_text_str)*16,0))
+    #draw ui stuff
+    ui.draw_all(primary)
 
     return pygame.display.flip()
 
@@ -65,13 +58,19 @@ def main():
     # Create the "World"
     world = setup_world()
 
+    # Create UI components
+    ui = eui.GameUI()
+    ui.add({ 'level': eui.StatusText(FONT, (0,0), lambda: "LEVEL: %d" % (LEVEL)),
+             'score': eui.StatusText(FONT, (640,0), lambda: "SCORE: %d" % (SCORE)),
+    })
+
     running = True
     oldlevel = 0
 
     while running:
         # limit 30fps
         clock.tick(30)
-        draw(world)
+        draw(world, ui)
 
         world.update_entities()
         oldlevel = world.update_world({ 'level': LEVEL,

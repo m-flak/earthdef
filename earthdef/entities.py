@@ -26,6 +26,13 @@ class Asteroid(earthdef.entity.Entity):
         # move the asteroid
         self.move(0, self.velocity)
 
+    # dont draw purged asteroids
+    def draw(self, draw_surface):
+        if self.purgeable is True:
+            return
+
+        return super().draw(draw_surface)
+
     @staticmethod
     def spawn_asteroids(count) -> list:
         asteroids = []
