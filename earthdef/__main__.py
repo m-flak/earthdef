@@ -12,8 +12,10 @@ BACKDROP = pygame.image.load(find_resource('image',
 FONT = None # fonts must be init'd after pygame.init
 
 #game globals
+LIVES = 10
 LEVEL = 1
 SCORE = 0
+OLDSCORE = SCORE
 
 def setup_world():
     world = mir.World()
@@ -40,7 +42,9 @@ def draw(world, ui):
 
 def main():
     global LEVEL
+    global OLDSCORE
     global SCORE
+    global LIVES
     global FONT
 
     pygame.init()
@@ -62,14 +66,22 @@ def main():
     ui = eui.GameUI()
     ui.add({ 'level': eui.StatusText(FONT, (0,0), lambda: "LEVEL: %d" % (LEVEL)),
              'score': eui.StatusText(FONT, (640,0), lambda: "SCORE: %d" % (SCORE)),
+             'lives': eui.StatusText(FONT, (0,36), lambda: "LIVES: %d" % (LIVES)),
     })
 
     running = True
     oldlevel = 0
+    dead = False
 
     while running:
         # limit 30fps
         clock.tick(30)
+
+        if dead:
+            if not ui.has_component('failure'):
+                screen = pygame.Rect((0,0),ed.DISPLAY_MODE)
+                ui.add({'failure': eui.StatusText(FONT, (screen.centerx, screen.centery), lambda: "MISSION FAILURE!").center()})
+
         draw(world, ui)
 
         world.update_entities()
@@ -96,6 +108,15 @@ def main():
             if event.type == ed.SCORE_CHANGED:
                 LEVEL = oldlevel+1
                 SCORE += event.scoremod
+                OLDSCORE = SCORE
+            if event.type == ed.EARTH_IMPACT:
+                LIVES -= event.num_impacts
+                if LIVES > 0:
+                    # keep 'em coming if none destroyed
+                    if SCORE == 0 or OLDSCORE == SCORE:
+                        LEVEL = oldlevel+1
+                else:
+                    dead = True
             # quit (like why?) ;)
             if event.type == pygame.QUIT:
                 running = False

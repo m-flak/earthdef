@@ -4,6 +4,13 @@ class GameUI(object):
     def __init__(self, objects=dict()):
         self.ui_objects = objects
 
+    def has_component(self, str_name):
+        try:
+            a = self.ui_objects[str_name]
+            return True
+        except:
+            return False
+
     def draw_all(self, draw_surface):
         for uio in self.ui_objects.values():
             uio.draw(draw_surface)
@@ -57,4 +64,9 @@ class StatusText(UIObject):
         self.surface = self.font.render(self.updater(), False, (0,255,0))
 
         return super(StatusText, self).draw(draw_surface)
-    
+
+    def center(self):
+        mod_x = len(self.updater())
+        mod_x = mod_x+mod_x//2
+        self.rect.x -= mod_x
+        return self

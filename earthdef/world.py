@@ -7,6 +7,17 @@ class World(object):
     def __init__(self, *args, **kwargs):
         self.entities = []
 
+    # Will return an entity, if it is the only occurence of 'key'
+    # Otherwise, a list of all entities matching 'key' will be
+    def __getitem__(self, key):
+        item = self.list_by_type(key)
+        if len(item) < 1:
+            raise KeyError("{} is not in World.".format(key))
+        elif len(item) == 1:
+            return item[0]
+        else:
+            return item
+
     def add_entity(self, entity):
         if isinstance(entity, ent.Entity):
             self.entities.append(entity)
@@ -39,6 +50,7 @@ class World(object):
             self.add_entity(
                 earthdef.entities.Asteroid.spawn_asteroids(level))
 
+        # find & destroy asteroids that the player kills
         asteroids = self.list_by_type('Asteroid')
         destroyed = self.get_collides(asteroids,
                                       self.list_by_type('Bullet'))
@@ -52,6 +64,21 @@ class World(object):
                 i = i + 1
             pygame.event.post(pygame.event.Event(earthdef.SCORE_CHANGED,{
                 'scoremod': i,
+            }))
+
+        #re-get 'alive' asteroids
+        asteroids = self.list_by_type('Asteroid')
+        # find & cull/purge all asteroids that hit the earth :o
+        hit_da_earth = self.get_collides(asteroids,[self['Earth']])
+        howmany = len(hit_da_earth)
+        if howmany > 0:
+            for d in hit_da_earth:
+                for a in asteroids:
+                    if a is d:
+                        a.purgeable = True
+                self.entities.remove(d)
+            pygame.event.post(pygame.event.Event(earthdef.EARTH_IMPACT,{
+                'num_impacts': howmany,
             }))
 
         return level
